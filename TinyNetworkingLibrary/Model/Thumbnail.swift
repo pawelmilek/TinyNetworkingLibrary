@@ -9,9 +9,9 @@
 import Foundation
 
 struct Thumbnail {
-  let url: String
-  let width: Int
-  let height: Int
+  private let url: String
+  private let width: Int
+  private let height: Int
 }
 
 

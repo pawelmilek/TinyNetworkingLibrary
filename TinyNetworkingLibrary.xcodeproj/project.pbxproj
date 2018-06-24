@@ -78,9 +78,9 @@
 		E21BD6A220DEFE060088EFF0 /* TinyNetworkingLibrary */ = {
 			isa = PBXGroup;
 			children = (
-				E21BD6C820DF006D0088EFF0 /* Model */,
 				E21BD6C720DEFF810088EFF0 /* Application */,
 				E21BD6B520DEFE6C0088EFF0 /* NetworkLayer */,
+				E21BD6C820DF006D0088EFF0 /* Model */,
 				E21BD6BA20DEFEAA0088EFF0 /* View */,
 				E21BD6C620DEFF790088EFF0 /* Controller */,
 				E21BD6A720DEFE060088EFF0 /* Main.storyboard */,

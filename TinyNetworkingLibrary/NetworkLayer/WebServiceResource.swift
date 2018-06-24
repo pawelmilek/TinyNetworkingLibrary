@@ -8,7 +8,18 @@
 
 import Foundation
 
-struct WebServiceResource<M, E> where E: Error {
+struct WebServiceResource<M> where M: Decodable {
   let url: URL
-  let parse: (Data) -> WebServiceResultType<M, E>?
+  
+  var parseJSON: (Data) -> WebServiceResultType<M, WebServiceError> = { data in
+    if let decodedModel = try? JSONDecoder().decode(M.self, from: data) {
+      return .success(decodedModel)
+    } else {
+      return .failure(WebServiceError.decodeFailed)
+    }
+  }
+  
+  init(url: URL) {
+    self.url = url
+  }
 }

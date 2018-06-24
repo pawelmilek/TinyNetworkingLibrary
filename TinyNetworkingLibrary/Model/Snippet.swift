@@ -9,8 +9,8 @@
 import Foundation
 
 struct Snippet {
-  let publishedAt: String
-  let channelId: String
+  private let publishedAt: String
+  private let channelId: String
   let title: String
   let description: String
   let thumbnails: [String: Thumbnail]
@@ -33,6 +33,7 @@ extension Snippet: Decodable {
   
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
+    
     self.publishedAt = try container.decode(String.self, forKey: .publishedAt)
     self.channelId = try container.decode(String.self, forKey: .channelId)
     self.title = try container.decode(String.self, forKey: .title)
