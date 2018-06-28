@@ -9,10 +9,32 @@
 import UIKit
 
 class TinyNetworkingLibraryViewController: UIViewController {
-  @IBOutlet weak var firstFetchButton: UIButton!
-  @IBOutlet weak var nextFetchButton: UIButton!
-  @IBOutlet weak var jsonResponseTextView: UITextView!
-  @IBOutlet weak var resultLabel: UILabel!
+  @IBOutlet weak var firstFetchButton: UIButton! {
+    didSet {
+      firstFetchButton.layer.cornerRadius = firstFetchButton.frame.size.height / 2
+      firstFetchButton.isEnabled = true
+    }
+  }
+  
+  @IBOutlet weak var nextFetchButton: UIButton! {
+    didSet {
+      nextFetchButton.layer.cornerRadius = nextFetchButton.frame.size.height / 2
+      nextFetchButton.isEnabled = false
+    }
+  }
+  
+  @IBOutlet weak var jsonResponseTextView: UITextView! {
+    didSet {
+      jsonResponseTextView.isEditable = false
+      jsonResponseTextView.text = ""
+    }
+  }
+  
+  @IBOutlet weak var resultLabel: UILabel! {
+    didSet {
+      resultLabel.text = ""
+    }
+  }
   
   private lazy var loadingIndicator: UIActivityIndicatorView = {
     let indicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
@@ -28,7 +50,7 @@ class TinyNetworkingLibraryViewController: UIViewController {
   
   
   private let webServiceFetchingGroup = DispatchGroup()
-  private let webServiceShared = WebServiceAPI.shared
+  private let webServiceShared = WebService.shared
   private var playlistItemsResponse: PlaylistItemsResponse?
   
   private lazy var fetchedDispatchWorkItem = DispatchWorkItem(qos: .userInteractive, flags: .inheritQoS, block: {
@@ -45,30 +67,7 @@ class TinyNetworkingLibraryViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    firstFetchButton.layer.cornerRadius = firstFetchButton.frame.size.height / 2
-    nextFetchButton.layer.cornerRadius = nextFetchButton.frame.size.height / 2
-    firstFetchButton.isEnabled = true
-    nextFetchButton.isEnabled = false
-    
-    jsonResponseTextView.isEditable = false
-    jsonResponseTextView.text = ""
-    resultLabel.text = ""
   }
-}
-
-
-// MARK: Actions
-extension TinyNetworkingLibraryViewController {
-  
-  @IBAction func fetchFirst50ItemsButtonPressed(_ sender: UIButton) {
-    jsonResponseTextView.text = ""
-    fetchPlaylistItems()
-  }
-  
-  @IBAction func fetchNext50ItemsButtonPressed(_ sender: UIButton) {
-    fetchNextPageOfPlaylistItems()
-  }
-  
 }
 
 
@@ -82,8 +81,8 @@ private extension TinyNetworkingLibraryViewController {
     firstFetchButton.isEnabled = false
     nextFetchButton.isEnabled = false
     
-    let playlistItemsResource = WebServiceResource<PlaylistItemsResponse>(url: webServiceShared.playlistItemsURL)
-    webServiceShared.fetch(resource: playlistItemsResource) { [weak self] response in
+    let request = YoutubePlaylistItemsRequest.make()
+    webServiceShared.fetch(PlaylistItemsResponse.self, with: request) { [weak self] response in
       switch response {
       case .success(let data):
         self?.playlistItemsResponse = data
@@ -115,8 +114,8 @@ private extension TinyNetworkingLibraryViewController {
     firstFetchButton.isEnabled = false
     nextFetchButton.isEnabled = false
     
-    let nextPagePlaylistItemsResource = WebServiceResource<PlaylistItemsResponse>(url: webServiceShared.nextPagePlaylistItemsURL(at: nextPageToken))
-    webServiceShared.fetch(resource: nextPagePlaylistItemsResource) { [weak self] response in
+    let nextPageRequest = YoutubePlaylistItemsRequest.make(nextPage: nextPageToken)
+    webServiceShared.fetch(PlaylistItemsResponse.self, with: nextPageRequest) { [weak self] response in
       guard let strongSelf = self else { return }
       
       switch response {
@@ -142,14 +141,25 @@ private extension TinyNetworkingLibraryViewController {
 private extension TinyNetworkingLibraryViewController {
 
   func startLoadingIndicator() {
-    DispatchQueue.main.async {
-      self.loadingIndicator.startAnimating()
-    }
+    ActivityIndicator.shared.startAnimating(at: view)
   }
   
   func stopLoadingIndicator() {
-    DispatchQueue.main.async {
-      self.loadingIndicator.stopAnimating()
-    }
+    ActivityIndicator.shared.stopAnimating()
   }
+}
+
+
+// MARK: Actions
+extension TinyNetworkingLibraryViewController {
+  
+  @IBAction func fetchFirst50ItemsButtonPressed(_ sender: UIButton) {
+    jsonResponseTextView.text = ""
+    fetchPlaylistItems()
+  }
+  
+  @IBAction func fetchNext50ItemsButtonPressed(_ sender: UIButton) {
+    fetchNextPageOfPlaylistItems()
+  }
+  
 }
